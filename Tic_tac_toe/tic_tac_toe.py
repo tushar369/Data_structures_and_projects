@@ -89,6 +89,7 @@ def play_game(board):
     board[row][col] = turn
 
     if check_tie(board):
+        display_board(board)
         print("It's a tie")  
         return True 
 
