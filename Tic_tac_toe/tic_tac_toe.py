@@ -22,11 +22,7 @@ def check_board(board, pos):
         return True
 
     #check col
-    pos_col = []
-    for i in range(len(board)):
-        if i != pos[1]:
-            pos_col.append(board[i][pos[1]])
-    pos_col.append(pos)        
+    pos_col = [board[0][pos[1]], board[1][pos[1]], board[2][pos[1]]]        
     if ['X', 'X', 'X'] == pos_col or ['O', 'O', 'O'] == pos_col:
         return True
 
@@ -46,7 +42,8 @@ def check_board(board, pos):
 
 def check_tie(board):
     if '-' not in board[0] and '-' not in board[1] and '-' not in board[2]:
-        return True        
+        return True
+          
 
 # choosing the position
 def move():
@@ -63,7 +60,6 @@ def move_validation(board, move):
     return False
 
 
-
 def flip_turn(turn):
     if turn == 'X':
         return 'O'
@@ -75,30 +71,36 @@ def play_game(board):
     global board_is_empty
     global turn
     display_board(board)
-    if board_is_empty:
+
+    #checking for intial turn or fliping the turn
+    if board_is_empty:                                 
         turn = 'X'
         board_is_empty = False
     else:
         turn = flip_turn(turn)
 
-    while True:    
+    # looping unless correct move is played
+    while True:  
         row, col = move()
         if move_validation(board, (row, col)):
             break
         
     board[row][col] = turn
 
+    # checking for tie
     if check_tie(board):
         display_board(board)
         print("It's a tie")  
-        return True 
+        return True
 
+    #checking for win
     if check_board(board, (row, col)):
         display_board(board)
         print(f"{turn} won !!")
         return True
     else:
-        play_game(board) 
+        # recursively calling the function until the end of game
+        play_game(board)
 
         
 play_game(empty_board)    
