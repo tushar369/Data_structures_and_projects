@@ -13,7 +13,7 @@ options.add_argument('--incognito')
 options.add_argument('--ignore-certificate-error')
 
 driver.get(Base_url + '/dp/' + ASIN + '?language=en_US')
-price1 = driver.find_element_by_xpath('//*[@id="olp-upd-new-used"]/span/a/span[3]').text
-print(price1)
+price = driver.find_element_by_xpath('//*[@id="olp-upd-new-used"]/span/a/span[3]').text
+print(price)
 time.sleep(3)
 driver.quit()

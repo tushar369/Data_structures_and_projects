@@ -71,28 +71,24 @@ def play_game(board):
     global board_is_empty
     global turn
     display_board(board)
-
     #checking for intial turn or fliping the turn
     if board_is_empty:                                 
         turn = 'X'
         board_is_empty = False
     else:
         turn = flip_turn(turn)
-
     # looping unless correct move is played
     while True:  
         row, col = move()
         if move_validation(board, (row, col)):
             break
-        
+    # setting move played    
     board[row][col] = turn
-
     # checking for tie
     if check_tie(board):
         display_board(board)
         print("It's a tie")  
         return True
-
     #checking for win
     if check_board(board, (row, col)):
         display_board(board)

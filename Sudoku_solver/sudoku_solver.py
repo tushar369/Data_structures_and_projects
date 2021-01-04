@@ -17,7 +17,6 @@ def findEmpty(board):
             if board[i][j] == 0:
                 return (i, j) 
                 #empty position (row,col)
-
     return None
 
 
@@ -40,7 +39,6 @@ def valid(num, pos, board):
         for j in range(box_y*3, box_y*3 + 3):
             if board[i][j] == num and (i, j) != pos:
                 return False
-
     return True
 
 def solve(board):
@@ -53,7 +51,7 @@ def solve(board):
     for i in range(1, 10):
         if valid(i, (row, col), board):
             board[row][col] = i
-
+            
             if solve(board):
                 return True
             board[row][col] = 0
