@@ -9,11 +9,10 @@ FILTERS = {
     'min' : MIN_PRICE,
     'max' : MAX_PRICE
 }
-BASE_URL = 'https://www.amazon.com/'
-
+BASE_URL = 'https://www.amazon.com'
 
 def get_chrome_web_driver(options):
-    return webdriver.Chrome('d:/Projects/Amazon_price_tracker/chromedriver.exe', chrome_options=options)
+    return webdriver.Chrome('./chromedriver.exe', chrome_options=options)
 
 def get_web_driver_options():
     return webdriver.ChromeOptions()

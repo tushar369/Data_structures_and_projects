@@ -10,14 +10,51 @@ from amazon_config import(
     set_browser_as_incognito
 )
 
+
 import time
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
+from pprint import pprint
+import json
+from datetime import datetime
 
 
 class GenerateReport:
-    def __init__(self):
-        pass
+    def __init__(self, file_name, filters, base_link, currency, data):
+        self.data = data
+        self.file_name = file_name
+        self.filters = filters
+        self.base_link = base_link
+        self.currency = currency
+        report = {
+            'title' : self.file_name,
+            'date' : self.get_now(),
+            'best_item' : self.get_best_item(),
+            'currency'  : self.currency,
+            'filters' : self.filters,
+            'base_link' : self.base_link,
+            'products' : self.data
+        }
+        print('Creating report................')
+        with open(f'{DIRECTORY}/{file_name}.json', 'w') as f:
+            json.dump(report, f)
+        print('DONE')    
+
+
+    def get_now(self):
+        now = datetime.now()
+        return now.strftime("%d/%m/%y %H:%M:%S")
+
+    
+    # Get lowest price item
+    def get_best_item(self): 
+        try:
+            return sorted(self.data, key=lambda k: k['price'])[0]     
+        except Exception as e:
+            print(e)
+            print("Problem with sorting items")
+            return None
+
 
 class AmazonAPI:
     def __init__(self, search_term, filters, base_url, currency):
@@ -106,16 +143,22 @@ class AmazonAPI:
             try:
                 availability = self.driver.find_element_by_id('availability').text
                 if 'Available' in availability:
-                    price = self.driver.find_element_by_xpath('//*[@id="olp-upd-new-used"]/span/a/span[3]').text
-                    price = price[price.find(self.currency):]
-                    price = self.convert_price(price)
+                    try:
+                        price = self.driver.find_element_by_xpath('//*[@id="olp_feature_div"]/div[2]/span/a/span[3]').text
+                        price = price[price.find(self.currency):]
+                        price = self.convert_price(price)
+                    except NoSuchElementException:
+                    #checking offscreen price
+                        price = self.driver.find_element_by_xpath('//*[@id="aod-price-1"]/span/span[1]')
+                        price = price[price.find(self.currency):]
+                        price = self.convert_price(price)        
             except Exception as e:        
                 print(e)
-                print(f"Can't fint the price for product - {self.driver.current_url}")
+                print(f"Can't find the price for product - {self.driver.current_url}")
                 return None
         except Exception as e:        
             print(e)
-            print(f"Can't fint the price for product - {self.driver.current_url}")
+            print(f"Can't find the price for product - {self.driver.current_url}")
             return None
         return price
 
@@ -142,13 +185,13 @@ class AmazonAPI:
 
 
     
-    def get_product_links(self):
+    def get_product_links(self): # Result page containing list of products
         self.driver.get(self.base_url)
         element = self.driver.find_element_by_id('twotabsearchtextbox')
         element.send_keys(self.search_term)
-        time.sleep(2) # wait to hit enter key
+        time.sleep(2)
         element.send_keys(Keys.ENTER)
-        time.sleep(4)  # wait to load the page
+        time.sleep(4) 
         self.driver.get(f'{self.driver.current_url}{self.price_filters}')
         time.sleep(3)
         result_list = self.driver.find_elements_by_class_name('s-result-list')
@@ -169,4 +212,5 @@ class AmazonAPI:
 if __name__ == '__main__':
     amazon = AmazonAPI(NAME, FILTERS, BASE_URL, CURRENCY)
     data = amazon.run()
-    print(data)
+    GenerateReport(NAME, FILTERS, BASE_URL, CURRENCY, data)
+    
